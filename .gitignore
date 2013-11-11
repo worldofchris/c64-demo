@@ -1,0 +1,8 @@
+# Symbol File
+*.sym
+# Intermediate Image File Format
+*.ppm
+# Disk Image
+*.d64
+# Object Files
+*.prg
