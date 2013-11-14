@@ -2,6 +2,7 @@
 *.sym
 # Intermediate Image File Format
 *.ppm
+*.koa
 # Disk Image
 *.d64
 # Object Files

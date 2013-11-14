@@ -1,15 +1,27 @@
 
-.var picture_1 = LoadBinary("picture.prg", BF_KOALA)
+.var picture_1 = LoadBinary("picture_1.koa", BF_KOALA)
+.var picture_2 = LoadBinary("picture_2.koa", BF_KOALA)
+.var picture_3 = LoadBinary("picture_3.koa", BF_KOALA)
 
 :BasicUpstart2(start)
 
 start:
+        // Bank out Basic so we can stick our graphics under there
+        lda $0001
+        and #%11111110
+        sta $0001
+
         // Set up video
 
         // VIC defaults to Bank #0 - Can only access 16k at a time
 
+        lda $DD00
+        and #%11111100
+        ora #%00000010 // <- your desired VIC bank value, see above
+        sta $DD00
+
         //    /-----Screen RAM $0C00
-        //    |   /-Select base address $0000 
+        //    |   /-Select base address $2000 
         //    |   |
         lda #%00111000
         sta $d018
@@ -36,7 +48,7 @@ start:
         ldx #0
 !loop:
         .for (var i=0; i<4; i++) {
-            lda colorRam+i*$100,x
+            lda colorRam_1+i*$100,x
             sta $d800+i*$100,x
         }
         inx
@@ -100,10 +112,61 @@ n2:     iny
 //----------------------------------------------------------
 irq1:   
             asl $d019
-            jsr delay
-            jsr delay
             nop
+            nop            
             nop
+            nop            
+            nop
+            nop            
+            nop
+            nop            
+            nop
+            nop            
+            nop
+            nop            
+            nop
+            nop            
+            nop
+            nop            
+            nop
+            nop            
+            nop
+            nop            
+            nop
+            nop            
+            nop
+            nop            
+            nop
+            nop            
+            nop
+            nop            
+            nop
+            nop            
+            nop
+            nop            
+            nop
+            nop            
+            nop
+            nop            
+            nop
+            nop            
+            nop
+            nop            
+            nop
+            nop            
+            nop
+            nop            
+            nop
+            nop            
+            nop
+            nop            
+            nop
+            nop            
+            nop            
+            nop
+            nop            
+            nop
+            nop            
             // Set Text Mode
             //      /----Bitmap mode OFF
             //      |/---Screen on
@@ -127,7 +190,15 @@ irq1:
             lda #$07
             sta h_offset
             jsr display_message
-carry_on:   // Set up the next interrupt
+carry_on:   
+            // Reset the VIC Bank
+            lda $DD00
+            and #%11111100
+            //          /--Bank 00
+            //          |
+            ora #%00000011 
+            sta $DD00
+            // Set up the next interrupt
             lda #$10
             sta $d012
             lda #<irq2
@@ -146,12 +217,40 @@ carry_on:   // Set up the next interrupt
 irq2:   
             asl $d019
             // Set up the next interrupt
-            lda #$EF
+            lda #$F0
             sta $d012
             lda #<irq1
             sta $0314
             lda #>irq1
             sta $0315
+            // Depending on which state we are in set VIC Bank accordingly
+            lda state
+            cmp #$01
+            beq state_1
+            cmp #$02
+            beq state_2
+            lda $DD00
+            and #%11111100
+            //          /--Bank 02
+            //          |
+            ora #%00000001 
+            jmp set_bank
+state_1:
+            lda $DD00
+            and #%11111100
+            //          /--Bank 00
+            //          |
+            ora #%00000011 
+            jmp set_bank
+state_2:
+            lda $DD00
+            and #%11111100
+            //          /--Bank 01
+            //          |
+            ora #%00000010 
+
+set_bank:   sta $DD00
+
             // Set High Res Mode
             lda #$3b
             sta $d011
@@ -169,9 +268,45 @@ irq2:
             // Handle Key presses
             jsr getkey
             beq irq2_done
-            // Change image based on where we are in the cycle
+            // Change color map
+            cmp #$01
+            beq color_1
+            cmp #$02
+            beq color_2
+            ldx #0
+!loop:
+            .for (var i=0; i<4; i++) {
+                lda colorRam_3+i*$100,x
+                sta $d800+i*$100,x
+            }
+            inx
+            bne !loop-
+            jmp recolor
 
-            sta $d020
+color_1:    ldx #0
+!loop:
+            .for (var i=0; i<4; i++) {
+                lda colorRam_1+i*$100,x
+                sta $d800+i*$100,x
+            }
+            inx
+            bne !loop-
+            jmp recolor
+color_2:    ldx #0
+!loop:
+            .for (var i=0; i<4; i++) {
+                lda colorRam_2+i*$100,x
+                sta $d800+i*$100,x
+            }
+            inx
+            bne !loop-
+recolor:
+            ldx #$D8
+    !fill:  lda #$00
+            sta $dae8,x
+            inx
+            bne !fill-
+
             // Restore Y, X and A
 irq2_done:  pla
             tay
@@ -213,7 +348,12 @@ no_space:  lda #$00
 }
 
 .pc = $0c00 "ScreenRam"             .fill picture_1.getScreenRamSize(), picture_1.getScreenRam(i)
-.pc = $1c00 "ColorRam:" colorRam:   .fill picture_1.getColorRamSize(), picture_1.getColorRam(i)
+.pc = $1c00 "ColorRam_1:" colorRam_1:   .fill picture_1.getColorRamSize(), picture_1.getColorRam(i)
 .pc = $2000 "Bitmap_1"              .fill picture_1.getBitmapSize(), picture_1.getBitmap(i)
 
-// .pc = $2000 "Bitmap_2"              .fill picture_1.getBitmapSize(), picture_1.getBitmap(i)
+.pc = $6000 "Bitmap_2"              .fill picture_1.getBitmapSize(), picture_2.getBitmap(i)
+.pc = $7F40 "ColorRam_2:" colorRam_2:   .fill picture_2.getColorRamSize(), picture_2.getColorRam(i)
+
+
+.pc = $A000 "Bitmap_3"              .fill picture_1.getBitmapSize(), picture_3.getBitmap(i)
+.pc = $BF40 "ColorRam_3:" colorRam_3:   .fill picture_3.getColorRamSize(), picture_3.getColorRam(i)
