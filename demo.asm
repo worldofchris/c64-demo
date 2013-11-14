@@ -1,5 +1,5 @@
 
-.var picture = LoadBinary("picture.prg", BF_KOALA)
+.var picture_1 = LoadBinary("picture.prg", BF_KOALA)
 
 :BasicUpstart2(start)
 
@@ -166,13 +166,44 @@ irq2:
             //       |||
             lda #%11011000
             sta $d016
+            // Handle Key presses
+            jsr getkey
+            beq irq2_done
+            // Change image based on where we are in the cycle
+
+            sta $d020
             // Restore Y, X and A
-            pla
+irq2_done:  pla
             tay
             pla
             tax
             pla
             rti
+//----------------------------------------------------------
+keydown:    .byte 0
+state:      .byte 1
+
+getkey: 
+           lda $dc01 
+           cmp keydown 
+           bne newkey 
+           lda #$00      // no change 
+           rts 
+newkey: 
+           sta keydown 
+           cmp #$ef      // new key is spacebar 
+           bne no_space
+           inc state     // cycle through states
+           lda state
+           cmp #$04
+           bne no_wrap
+           lda #$01
+           sta state
+no_wrap:   rts
+
+no_space:  lda #$00
+           rts
+
 
 .import source "delay.asm"
 
@@ -181,6 +212,8 @@ irq2:
     sta $d020
 }
 
-.pc = $0c00 "ScreenRam"             .fill picture.getScreenRamSize(), picture.getScreenRam(i)
-.pc = $1c00 "ColorRam:" colorRam:   .fill picture.getColorRamSize(), picture.getColorRam(i)
-.pc = $2000 "Bitmap"                .fill picture.getBitmapSize(), picture.getBitmap(i)
+.pc = $0c00 "ScreenRam"             .fill picture_1.getScreenRamSize(), picture_1.getScreenRam(i)
+.pc = $1c00 "ColorRam:" colorRam:   .fill picture_1.getColorRamSize(), picture_1.getColorRam(i)
+.pc = $2000 "Bitmap_1"              .fill picture_1.getBitmapSize(), picture_1.getBitmap(i)
+
+// .pc = $2000 "Bitmap_2"              .fill picture_1.getBitmapSize(), picture_1.getBitmap(i)
