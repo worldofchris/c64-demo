@@ -68,25 +68,25 @@ fill:   lda #$20
         sta $d012
         cli
 this:   jmp this
-data:       .text "base79 are youtube's biggest partner outside north america and teh most awesome. "
+msg_text:   .text "base79 are youtube's biggest partner outside north america and teh most awesome. "
 h_offset:   .byte 7
 msg_offset: .byte 0
-msg_max:    .byte 81
+msg_length: .byte 81
 
 //----------------------------------------------------------
 display_message:
         ldx msg_offset
-        cpx msg_max
+        cpx msg_length
         bne n1
         // at end of message - go back to the beginning
         ldx #0
         stx msg_offset
 
 n1:     ldy #0
-write:  lda data,x
+write:  lda msg_text,x
         sta $3fC0,y
         inx
-        cpx msg_max
+        cpx msg_length
         bne n2
         // We hit the end of the message - start at the beginning 
         ldx #0
@@ -104,7 +104,6 @@ irq1:
             jsr delay
             nop
             nop
-            // :SetBorderColor(2)
             // Set Text Mode
             //      /----Bitmap mode OFF
             //      |/---Screen on
@@ -146,7 +145,6 @@ carry_on:   // Set up the next interrupt
 //----------------------------------------------------------
 irq2:   
             asl $d019
-            // :SetBorderColor(0)
             // Set up the next interrupt
             lda #$EF
             sta $d012
@@ -175,55 +173,8 @@ irq2:
             tax
             pla
             rti
-    
 
-//----------------------------------------------------------
-// From http://codebase64.org/doku.php?id=base:delay
-// Delay to smooth out raster interrupts
-//
-delay:            // delay 84-accu cycles, 0<=accu<=65
-  lsr             // 2 cycles akku=akku/2 carry=1 if accu was odd, 0 otherwise
-  bcc waste1cycle // 2/3 cycles, depending on lowest bit, same operation for both
-waste1cycle:
-  sta smod+1      // 4 cycles selfmodifies the argument of branch
-  clc             // 2 cycles 
-// now we have burned 10/11 cycles.. and jumping into a nopfield 
-smod:
-  bcc *+10        // 3 cycles
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  nop
-  rts             // 6 cycles
-
+.import source "delay.asm"
 
 .macro SetBorderColor(color) {
     lda #color
