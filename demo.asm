@@ -112,6 +112,13 @@ n2:     iny
 //----------------------------------------------------------
 irq1:   
             asl $d019
+            // Reset the VIC Bank
+            lda $DD00
+            and #%11111100
+            //          /--Bank 00
+            //          |
+            ora #%00000011 
+            sta $DD00
             nop
             nop            
             nop
@@ -191,13 +198,6 @@ irq1:
             sta h_offset
             jsr display_message
 carry_on:   
-            // Reset the VIC Bank
-            lda $DD00
-            and #%11111100
-            //          /--Bank 00
-            //          |
-            ora #%00000011 
-            sta $DD00
             // Set up the next interrupt
             lda #$10
             sta $d012
