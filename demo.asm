@@ -95,6 +95,9 @@ display_message:
         ldx #0
         stx msg_offset
 
+        // change the state + cycle the image
+        jsr load_color
+
 n1:     ldy #0
 write:  lda msg_text,x
         sta $3fC0,y
@@ -270,6 +273,25 @@ set_bank:   sta $DD00
             jsr getkey
             beq irq2_done
 
+            jsr load_color
+
+            // Restore Y, X and A
+irq2_done:  pla
+            tay
+            pla
+            tax
+            pla
+            rti
+
+//----------------------------------------------------------
+load_color: // cycle state
+            inc state
+            lda state
+            cmp #4
+            bne done
+            lda #1
+            sta state
+done:
             // Change color map
             cmp #$01
             beq color_1
@@ -308,14 +330,8 @@ recolor:
             sta $dae8,x
             inx
             bne !fill-
+            rts
 
-            // Restore Y, X and A
-irq2_done:  pla
-            tay
-            pla
-            tax
-            pla
-            rti
 //----------------------------------------------------------
 keydown:    .byte 0
 state:      .byte 1
@@ -330,12 +346,7 @@ newkey:
            sta keydown 
            cmp #$ef      // new key is spacebar 
            bne no_space
-           inc state     // cycle through states
-           lda state
-           cmp #$04
-           bne no_wrap
            lda #$01
-           sta state
 no_wrap:   rts
 
 no_space:  lda #$00
