@@ -45,6 +45,7 @@ start:
         lda #1
         sta $d020
         sta $d021
+
         ldx #0
 !loop:
         .for (var i=0; i<4; i++) {
@@ -268,6 +269,7 @@ set_bank:   sta $DD00
             // Handle Key presses
             jsr getkey
             beq irq2_done
+
             // Change color map
             cmp #$01
             beq color_1
@@ -342,18 +344,15 @@ no_space:  lda #$00
 
 .import source "delay.asm"
 
-.macro SetBorderColor(color) {
-    lda #color
-    sta $d020
-}
-
-.pc = $0c00 "ScreenRam"             .fill picture_1.getScreenRamSize(), picture_1.getScreenRam(i)
+.pc = $0c00 "ScreenRam_1"             .fill picture_1.getScreenRamSize(), picture_1.getScreenRam(i)
 .pc = $1c00 "ColorRam_1:" colorRam_1:   .fill picture_1.getColorRamSize(), picture_1.getColorRam(i)
 .pc = $2000 "Bitmap_1"              .fill picture_1.getBitmapSize(), picture_1.getBitmap(i)
 
+.pc = $4c00 "ScreenRam_2"             .fill picture_2.getScreenRamSize(), picture_2.getScreenRam(i)
 .pc = $6000 "Bitmap_2"              .fill picture_1.getBitmapSize(), picture_2.getBitmap(i)
 .pc = $7F40 "ColorRam_2:" colorRam_2:   .fill picture_2.getColorRamSize(), picture_2.getColorRam(i)
 
 
+.pc = $8c00 "ScreenRam_3"             .fill picture_3.getScreenRamSize(), picture_3.getScreenRam(i)
 .pc = $A000 "Bitmap_3"              .fill picture_1.getBitmapSize(), picture_3.getBitmap(i)
 .pc = $BF40 "ColorRam_3:" colorRam_3:   .fill picture_3.getColorRamSize(), picture_3.getColorRam(i)
