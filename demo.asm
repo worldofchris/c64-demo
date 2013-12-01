@@ -81,10 +81,10 @@ fill:   lda #$20
         sta $d012
         cli
 this:   jmp this
-msg_text:   .text "base79 are youtube's biggest partner outside north america and teh most awesome. "
+msg_text:   .text "base79 are youtube's biggest partner outside north america.  we make value from video with python, node.js, backbone, d3, lean and agile. "
 h_offset:   .byte 7
 msg_offset: .byte 0
-msg_length: .byte 81
+msg_length: .byte 138
 
 //----------------------------------------------------------
 display_message:
