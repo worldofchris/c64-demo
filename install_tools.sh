@@ -1,7 +1,7 @@
 #!/bin/sh
 # Get the dependencies for building the C64 demo
 
-commands="wget unzip lha make gcc"
+commands="wget unzip lha make gcc java"
 for i in $commands
 do
   if command -v $i > /dev/null; then
