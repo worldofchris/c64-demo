@@ -20,9 +20,9 @@ demo.prg:demo.asm delay.asm picture_1.koa picture_2.koa picture_3.koa
 	convert $*.png -remap palette.gif -resize 160x200\! $*.ppm
 
 clean:
-	rm *.prg
-	rm *.d64
-	rm *.sym
-	rm *.ppm
-	rm *.koa
+	rm -f *.prg
+	rm -f *.d64
+	rm -f *.sym
+	rm -f *.ppm
+	rm -f *.koa
 
