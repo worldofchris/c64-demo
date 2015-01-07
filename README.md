@@ -1,6 +1,8 @@
-# Base79 C64 Demo
+# C64 Demo
 
 ![Logo](http://public.base79.com/bitbucket/base79-c64.png)
+
+# About
 
 In order to show off our l33t skillz and love of all things tech we are making a little demo to run on a vintage Commodore 64 at [Silicon Milk Roundabout](http://siliconmilkroundabout.com/).
 
@@ -10,6 +12,10 @@ Images are converted from .pngs by first converting them to .ppm files using [Im
 
 The .d64 image that gets loaded onto the C64 is made using the C1541 tool that comes with the [Vice Emulator](http://vice-emu.sourceforge.net/).
 
-This is then loaded onto the C64 using [1541 Ultimate](http://www.1541ultimate.net/content/index.php).
+# Usage
 
-All steps except the last, which requires physical action, are orchestrated by [GNU Make](http://www.gnu.org/software/make/).
+To install the tool dependencies required to build the demo run `install_tools.sh`.  This will install the tools required in a directory called `tools`.
+
+You'll then be prompted to install a version of the [Vice Emulator](http://vice-emu.sourceforge.net/) for your machine.
+
+Once the dependencies are installed run `make`.  This will create a .d64 image for use in Vice or on real hardware.
